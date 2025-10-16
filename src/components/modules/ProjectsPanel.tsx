@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import Image from "next/image";
+import Link from "next/link";
 import Pagination from "@/components/Pagination";
 
 const PAGE_SIZE = 6;
 
 async function getProjects(page: number) {
-  try {
-    const url = `${process.env.NEXT_PUBLIC_API_BASE}/project?page=${page}&limit=${PAGE_SIZE}`;
-    const res = await fetch(url, { next: { revalidate: 300 } }); // ISR
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
+  const url = `${process.env.NEXT_PUBLIC_API_BASE}/project?page=${page}&limit=${PAGE_SIZE}`;
+  const res = await fetch(url, { next: { revalidate: 3 } }); // ISR
+  if (!res.ok) return null;
+  return res.json();
 }
 
-// Normalize common shapes to { items: any[], total: number }
+// Normalize common API shapes -> { items, total }
 function normalize(data: any) {
   const items = Array.isArray(data)
     ? data
@@ -38,48 +36,69 @@ function normalize(data: any) {
 
 export default async function ProjectsPanel({ page }: { page: number }) {
   const raw = await getProjects(page);
+  const { items, total } = raw ? normalize(raw) : { items: [], total: 0 };
 
-  // Fallback to dummy data if server not ready
-  const fallback = [
-    {
-      id: 1,
-      title: "Portfolio Website",
-      description: "Next.js + Tailwind + Prisma",
-    },
-    { id: 2, title: "E-Commerce Store", description: "MERN + Stripe" },
-    { id: 3, title: "Chat App", description: "Socket.io real-time chat" },
-  ];
-
-  const { items, total } = raw
-    ? normalize(raw)
-    : { items: fallback, total: fallback.length };
-
-  const itemsArr = Array.isArray(items) ? items : [];
+  const list: any[] = Array.isArray(items) ? items : [];
   const totalPages = Math.max(
     1,
-    Math.ceil((typeof total === "number" ? total : itemsArr.length) / PAGE_SIZE)
+    Math.ceil((typeof total === "number" ? total : list.length) / PAGE_SIZE)
   );
 
   return (
     <div className="space-y-6">
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {itemsArr.length > 0 ? (
-          itemsArr.map((p: any) => (
-            <div
-              key={p.id ?? p.slug ?? Math.random()}
-              className="rounded-2xl border p-4"
-            >
-              <div className="aspect-video rounded-lg bg-muted mb-3" />
-              <div className="font-semibold">
-                {p.title ?? "Untitled Project"}
-              </div>
-              <div className="text-sm opacity-70">{p.description ?? ""}</div>
-            </div>
-          ))
+        {list.length > 0 ? (
+          list.map((p, idx) => {
+            const key = p.id ?? p.slug ?? idx;
+            return (
+              <Link
+                href={`/projects/${p.id}`} // ✅ details route even if no /projects index
+                key={key}
+                className="group rounded-2xl border hover:shadow-sm transition overflow-hidden"
+              >
+                <div className="relative aspect-video bg-muted">
+                  {p.thumbnail ? (
+                    <Image
+                      src={p.thumbnail}
+                      alt={p.title ?? "Project thumbnail"}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  ) : null}
+
+                  <div className="absolute left-2 top-2 flex gap-2">
+                    {p.featured ? (
+                      <span className="rounded-full bg-primary/90 text-white text-[10px] px-2 py-1">
+                        Featured
+                      </span>
+                    ) : null}
+                    {p.status ? (
+                      <span className="rounded-full bg-background/80 backdrop-blur text-[10px] px-2 py-1 border capitalize">
+                        {String(p.status).toLowerCase()}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <h3 className="font-semibold line-clamp-1 group-hover:text-primary transition">
+                    {p.title ?? "Untitled Project"}
+                  </h3>
+                  {p.description ? (
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                      {p.description}
+                    </p>
+                  ) : null}
+                </div>
+              </Link>
+            );
+          })
         ) : (
           <div className="opacity-60">No projects yet.</div>
         )}
       </div>
+
       <Pagination totalPages={totalPages} />
     </div>
   );
