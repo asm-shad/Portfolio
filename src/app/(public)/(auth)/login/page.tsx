@@ -1,3 +1,7 @@
-export const Login = () => {
-  return <div>Login</div>;
+import LoginForm from "@/components/modules/LoginForm";
+
+const LoginPage = () => {
+  return <LoginForm />;
 };
+
+export default LoginPage;
