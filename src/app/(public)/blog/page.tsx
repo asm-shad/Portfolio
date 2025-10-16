@@ -1,15 +1,17 @@
+// app/blog/page.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import Pagination from "@/components/Pagination";
 import TrackedBlogLink from "@/helpers/TrackedBlogLink";
+import MotherPagination from "@/components/MotherPagination";
 
-const PAGE_SIZE = 6;
+export const revalidate = 300; // ISR for the page shell
+
+const PAGE_SIZE = 12;
 
 async function getBlogs(page: number) {
-  const url = `${process.env.NEXT_PUBLIC_API_BASE}/post?page=${page}&limit=${PAGE_SIZE}&isPublished=true`;
-  const res = await fetch(url, { next: { revalidate: 3 } });
+  const base = process.env.NEXT_PUBLIC_API_BASE!;
+  const url = `${base}/post?page=${page}&limit=${PAGE_SIZE}&isPublished=true`;
+  const res = await fetch(url, { next: { revalidate: 300 } });
   if (!res.ok) return null;
   return res.json();
 }
@@ -45,7 +47,14 @@ function toDateLabel(s?: string | null) {
   });
 }
 
-export default async function BlogPanel({ page }: { page: number }) {
+export default async function AllBlogs({
+  searchParams,
+}: {
+  searchParams?: { page?: string };
+}) {
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp?.page ?? "1"));
+
   const raw = await getBlogs(page);
   const { items, total } = raw ? normalize(raw) : { items: [], total: 0 };
 
@@ -56,7 +65,14 @@ export default async function BlogPanel({ page }: { page: number }) {
   );
 
   return (
-    <div className="space-y-6">
+    <main className="container mx-auto px-4 py-6 space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl md:text-3xl font-semibold">All Blogs</h1>
+        <p className="text-muted-foreground">
+          Latest posts and tutorials from my notebook.
+        </p>
+      </header>
+
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {list.length > 0 ? (
           list.map((b, idx) => {
@@ -83,7 +99,6 @@ export default async function BlogPanel({ page }: { page: number }) {
                     />
                   ) : null}
 
-                  {/* Badges */}
                   <div className="absolute left-2 top-2 flex gap-2">
                     {b.isFeatured ? (
                       <span className="rounded-full bg-primary/90 text-white text-[10px] px-2 py-1">
@@ -115,7 +130,6 @@ export default async function BlogPanel({ page }: { page: number }) {
                     ) : null}
                   </div>
 
-                  {/* Tags */}
                   {tags.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {Array.from(new Set<string>(tags))
@@ -139,13 +153,14 @@ export default async function BlogPanel({ page }: { page: number }) {
         )}
       </div>
 
-      {/* Pagination (left) + All Blogs (right) */}
-      <div className="flex items-center justify-between">
-        <Pagination totalPages={totalPages} />
-        <Link href="/blog">
-          <Button variant="outline">All Blogs</Button>
-        </Link>
+      <div className="flex justify-center">
+        <MotherPagination
+          totalPages={totalPages}
+          queryKey="page"
+          basePath="/dashboard/projects"
+          extraParams={{ filter: "active" }}
+        />
       </div>
-    </div>
+    </main>
   );
 }

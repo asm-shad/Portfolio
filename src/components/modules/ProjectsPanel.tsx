@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import Pagination from "@/components/Pagination";
 
 const PAGE_SIZE = 6;
 
 async function getProjects(page: number) {
   const url = `${process.env.NEXT_PUBLIC_API_BASE}/project?page=${page}&limit=${PAGE_SIZE}`;
-  const res = await fetch(url, { next: { revalidate: 3 } }); // ISR
+  const res = await fetch(url, { next: { revalidate: 3 } });
   if (!res.ok) return null;
   return res.json();
 }
@@ -46,16 +47,18 @@ export default async function ProjectsPanel({ page }: { page: number }) {
 
   return (
     <div className="space-y-6">
+      {/* --- Projects Grid --- */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {list.length > 0 ? (
           list.map((p, idx) => {
             const key = p.id ?? p.slug ?? idx;
             return (
               <Link
-                href={`/projects/${p.id}`} // ✅ details route even if no /projects index
+                href={`/projects/${p.id}`} // ✅ details route
                 key={key}
                 className="group rounded-2xl border hover:shadow-sm transition overflow-hidden"
               >
+                {/* Thumbnail */}
                 <div className="relative aspect-video bg-muted">
                   {p.thumbnail ? (
                     <Image
@@ -67,6 +70,7 @@ export default async function ProjectsPanel({ page }: { page: number }) {
                     />
                   ) : null}
 
+                  {/* Labels */}
                   <div className="absolute left-2 top-2 flex gap-2">
                     {p.featured ? (
                       <span className="rounded-full bg-primary/90 text-white text-[10px] px-2 py-1">
@@ -81,6 +85,7 @@ export default async function ProjectsPanel({ page }: { page: number }) {
                   </div>
                 </div>
 
+                {/* Body */}
                 <div className="p-4">
                   <h3 className="font-semibold line-clamp-1 group-hover:text-primary transition">
                     {p.title ?? "Untitled Project"}
@@ -99,7 +104,13 @@ export default async function ProjectsPanel({ page }: { page: number }) {
         )}
       </div>
 
-      <Pagination totalPages={totalPages} />
+      {/* --- Pagination & All Projects Button --- */}
+      <div className="flex items-center justify-between">
+        <Pagination totalPages={totalPages} />
+        <Link href="/projects">
+          <Button variant="outline">All Projects</Button>
+        </Link>
+      </div>
     </div>
   );
 }

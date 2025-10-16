@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -14,31 +15,53 @@ import Logo from "@/components/logo";
 
 export default function Navbar() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  const isAuthenticated = status === "authenticated";
+  const user = session?.user;
 
   return (
     <header className="border-b backdrop-blur-sm px-4 md:px-8">
       <div className="flex h-16 items-center justify-between container mx-auto">
         {/* ---------- LEFT SIDE ---------- */}
-        <div className="flex items-center gap-3">
-          {/* ✅ Use Link instead of <a> */}
-          <Link href="/" className="flex items-center gap-2">
-            <Logo />
-          </Link>
-        </div>
+        <Link href="/" className="flex items-center gap-2">
+          <Logo />
+        </Link>
 
         {/* ---------- RIGHT SIDE ---------- */}
         <div className="flex items-center gap-3">
           {/* Theme toggle */}
           <ModeToggle />
 
-          {/* Dashboard button */}
-          <Button
-            variant="ghost"
-            className="font-medium"
-            onClick={() => router.push("/login")}
-          >
-            Dashboard
-          </Button>
+          {/* Dashboard / Admin Panel */}
+          {isAuthenticated ? (
+            <Button
+              variant="ghost"
+              className="font-medium"
+              onClick={() => router.push("/dashboard")}
+            >
+              Admin Panel
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              className="font-medium"
+              onClick={() => router.push("/login")}
+            >
+              Dashboard
+            </Button>
+          )}
+
+          {/* Optional Logout if logged in */}
+          {isAuthenticated && (
+            <Button
+              variant="outline"
+              className="font-medium"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
+              Logout
+            </Button>
+          )}
 
           {/* Get In Touch popover */}
           <Popover>
@@ -55,7 +78,7 @@ export default function Navbar() {
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-primary" />
-                  <span>owner@example.com</span>
+                  <span>{user?.email ?? "owner@example.com"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-primary" />

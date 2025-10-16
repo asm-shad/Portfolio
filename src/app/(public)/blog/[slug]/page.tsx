@@ -17,10 +17,21 @@ function toDateLabel(s?: string | null) {
 async function getBlog(slug: string) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE}/post/slug/${slug}`,
-    { next: { revalidate: 300 } } // ISR
+    {
+      next: { revalidate: 300 },
+    }
   );
-  if (!res.ok) return null;
-  return res.json();
+  if (!res.ok) {
+    console.error("❌ Blog fetch failed:", res.status, res.statusText);
+    return null;
+  }
+
+  const data = await res.json();
+  console.log("✅ Blog fetched:", data);
+
+  // normalize in case API returns { success, data: {...} }
+  if (data?.data) return data.data;
+  return data;
 }
 
 export default async function BlogDetails({
@@ -30,37 +41,38 @@ export default async function BlogDetails({
 }) {
   const { slug } = await params;
   const blog = await getBlog(slug);
-  if (!blog) notFound();
+
+  if (!blog) {
+    console.warn("❌ Blog not found for slug:", slug);
+    notFound();
+  }
 
   const {
     title,
     content,
     excerpt,
     thumbnail,
-    tags,
+    tags = [],
     isFeatured,
     isPublished,
     views,
     author,
     createdAt,
-    updatedAt,
     publishedAt,
   } = blog as any;
 
   const date = toDateLabel(publishedAt ?? createdAt);
-  const tagList: string[] = Array.isArray(tags) ? tags : [];
 
   return (
     <main className="container mx-auto px-4 py-6 space-y-8">
-      {/* Header */}
       <header className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          {isFeatured ? (
+          {isFeatured && (
             <span className="rounded-full bg-primary text-white text-[11px] px-2 py-0.5">
               Featured
             </span>
-          ) : null}
-          {isPublished ? null : (
+          )}
+          {!isPublished && (
             <span className="rounded-full border text-[11px] px-2 py-0.5">
               Draft
             </span>
@@ -68,14 +80,12 @@ export default async function BlogDetails({
         </div>
 
         <h1 className="text-2xl md:text-3xl font-semibold">{title}</h1>
+        {excerpt && <p className="text-muted-foreground">{excerpt}</p>}
 
-        {excerpt ? <p className="text-muted-foreground">{excerpt}</p> : null}
-
-        {/* Author */}
-        {author ? (
+        {author && (
           <div className="mt-2 flex items-center gap-3">
             <div className="relative h-9 w-9 overflow-hidden rounded-full bg-muted">
-              {author.picture ? (
+              {author.picture && (
                 <Image
                   src={author.picture}
                   alt={author.name ?? "Author"}
@@ -83,33 +93,28 @@ export default async function BlogDetails({
                   sizes="36px"
                   className="object-cover"
                 />
-              ) : null}
+              )}
             </div>
             <div className="text-sm">
-              <div className="font-medium leading-tight">
-                {author.name ?? "Author"}
-              </div>
-              {author.title ? (
-                <div className="text-muted-foreground leading-tight">
-                  {author.title}
-                </div>
-              ) : null}
+              <div className="font-medium">{author.name ?? "Author"}</div>
+              {author.title && (
+                <div className="text-muted-foreground">{author.title}</div>
+              )}
             </div>
             <div className="ml-auto text-xs text-muted-foreground flex items-center gap-2">
-              {date ? <span>{date}</span> : null}
-              {typeof views === "number" ? (
+              {date && <span>{date}</span>}
+              {typeof views === "number" && (
                 <>
                   <span>•</span>
                   <span>{views} views</span>
                 </>
-              ) : null}
+              )}
             </div>
           </div>
-        ) : null}
+        )}
       </header>
 
-      {/* Thumbnail */}
-      {thumbnail ? (
+      {thumbnail && (
         <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
           <Image
             src={thumbnail}
@@ -120,16 +125,15 @@ export default async function BlogDetails({
             priority
           />
         </div>
-      ) : null}
+      )}
 
-      {/* Tags */}
-      {tagList.length > 0 && (
-        <section className="space-y-2">
-          <div className="text-xs font-semibold text-muted-foreground tracking-wide uppercase">
+      {tags?.length > 0 && (
+        <section>
+          <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">
             Tags
           </div>
           <div className="flex flex-wrap gap-2">
-            {Array.from(new Set<string>(tagList)).map((t) => (
+            {tags.map((t: string) => (
               <span
                 key={t}
                 className="text-[11px] rounded-full border bg-muted/60 px-2 py-0.5"
@@ -141,14 +145,14 @@ export default async function BlogDetails({
         </section>
       )}
 
-      {/* Content */}
       {content ? (
         <article className="prose prose-sm md:prose-base max-w-none dark:prose-invert">
           <p>{content}</p>
         </article>
-      ) : null}
+      ) : (
+        <p className="opacity-60">No content available for this blog.</p>
+      )}
 
-      {/* Back link */}
       <div className="pt-4">
         <Link
           href="/?tab=blog"
