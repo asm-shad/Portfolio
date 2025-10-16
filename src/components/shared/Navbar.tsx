@@ -17,7 +17,7 @@ export default function Navbar() {
 
   return (
     <header className="border-b backdrop-blur-sm px-4 md:px-8">
-      <div className="flex h-16 items-center justify-between">
+      <div className="flex h-16 items-center justify-between container mx-auto">
         {/* ---------- LEFT SIDE ---------- */}
         <div className="flex items-center gap-3">
           {/* ✅ Use Link instead of <a> */}
