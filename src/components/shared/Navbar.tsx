@@ -33,6 +33,15 @@ export default function Navbar() {
           {/* Theme toggle */}
           <ModeToggle />
 
+          {/* ✅ About Me Button */}
+          <Button
+            variant="ghost"
+            className="font-medium"
+            onClick={() => router.push("/about")}
+          >
+            About Me
+          </Button>
+
           {/* Dashboard / Admin Panel */}
           {isAuthenticated ? (
             <Button
