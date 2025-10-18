@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -18,7 +19,7 @@ async function getBlog(slug: string) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE}/post/slug/${slug}`,
     {
-      next: { revalidate: 300 },
+      next: { revalidate: 30 },
     }
   );
   if (!res.ok) {
@@ -32,6 +33,53 @@ async function getBlog(slug: string) {
   // normalize in case API returns { success, data: {...} }
   if (data?.data) return data.data;
   return data;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const { slug } = params;
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE}/post/slug/${slug}`,
+    { next: { revalidate: 30 } }
+  );
+
+  if (!res.ok) {
+    return {
+      title: "Blog Post Not Found",
+      description: "The requested blog post could not be found.",
+    };
+  }
+
+  const data = await res.json();
+  // ✅ define blog outside, normalize it cleanly
+  const blog = data?.data ?? data;
+
+  // ✅ add safe fallbacks
+  const title = blog?.title ?? "Blog Post";
+  const description =
+    blog?.excerpt ??
+    (blog?.content ? blog.content.slice(0, 160) : "Read this blog post.");
+  const image = blog?.thumbnail ?? undefined;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
 }
 
 export default async function BlogDetails({

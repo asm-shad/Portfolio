@@ -1,17 +1,22 @@
-// app/blog/page.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
 import TrackedBlogLink from "@/helpers/TrackedBlogLink";
 import MotherPagination from "@/components/MotherPagination";
+import { Metadata } from "next";
 
 export const revalidate = 300; // ISR for the page shell
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 9;
+
+export const metadata: Metadata = {
+  title: "All Blogs",
+  description: "Latest blog posts by ASM Shad.",
+};
 
 async function getBlogs(page: number) {
   const base = process.env.NEXT_PUBLIC_API_BASE!;
   const url = `${base}/post?page=${page}&limit=${PAGE_SIZE}&isPublished=true`;
-  const res = await fetch(url, { next: { revalidate: 300 } });
+  const res = await fetch(url, { next: { revalidate: 30 } });
   if (!res.ok) return null;
   return res.json();
 }
@@ -157,7 +162,6 @@ export default async function AllBlogs({
         <MotherPagination
           totalPages={totalPages}
           queryKey="page"
-          basePath="/dashboard/projects"
           extraParams={{ filter: "active" }}
         />
       </div>

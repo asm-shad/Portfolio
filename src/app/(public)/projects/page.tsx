@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import MotherPagination from "@/components/MotherPagination";
 
 export const revalidate = 300; // ISR enabled (revalidates every 5 minutes)
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 9;
 
 async function getProjects(page: number) {
   const base = process.env.NEXT_PUBLIC_API_BASE!;
   const url = `${base}/project?page=${page}&limit=${PAGE_SIZE}`;
-  const res = await fetch(url, { next: { revalidate: 3 } }); // ISR fetch
+  const res = await fetch(url, { next: { revalidate: 30 } }); // ISR fetch
   if (!res.ok) return null;
   return res.json();
 }
@@ -168,7 +168,6 @@ export default async function AllProjects({
         <MotherPagination
           totalPages={totalPages}
           queryKey="page"
-          basePath="/dashboard/projects"
           extraParams={{ filter: "active" }}
         />
       </div>

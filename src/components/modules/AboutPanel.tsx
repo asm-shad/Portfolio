@@ -1,4 +1,3 @@
-/* components/modules/AboutPanel.tsx */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
 import {

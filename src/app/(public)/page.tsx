@@ -1,6 +1,3 @@
-// app/page.tsx
-
-import AboutPanel from "@/components/modules/AboutPanel";
 import AboutSummary from "@/components/modules/AboutSummary";
 import BlogPanel from "@/components/modules/BlogPanel";
 import ProjectsPanel from "@/components/modules/ProjectsPanel";

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 async function getOwner() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/user`, {
-    next: { revalidate: 3600 },
+    next: { revalidate: 30 },
   });
   if (!res.ok) return null;
   const list = await res.json();
