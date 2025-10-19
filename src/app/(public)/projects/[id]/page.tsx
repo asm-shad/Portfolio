@@ -33,7 +33,7 @@ function sanitizeImages(raw: any): string[] {
 }
 
 async function getProject(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/project/${id}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/project/${id}`, {
     next: { revalidate: 30 }, // ISR
   });
   if (!res.ok) return null;

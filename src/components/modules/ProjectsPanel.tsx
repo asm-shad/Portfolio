@@ -7,7 +7,7 @@ import Pagination from "@/components/Pagination";
 const PAGE_SIZE = 6;
 
 async function getProjects(page: number) {
-  const url = `${process.env.NEXT_PUBLIC_API_BASE}/project?page=${page}&limit=${PAGE_SIZE}`;
+  const url = `${process.env.NEXT_PUBLIC_BASE_API}/project?page=${page}&limit=${PAGE_SIZE}`;
   const res = await fetch(url, { next: { revalidate: 3 } });
   if (!res.ok) return null;
   return res.json();

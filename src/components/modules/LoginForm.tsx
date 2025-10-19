@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm, FieldValues } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,31 +12,45 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import Image from "next/image";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const form = useForm<FieldValues>({
     defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = async (values: FieldValues) => {
     console.log("Login Submitted: ", values);
+    setIsLoading(true);
+
     try {
-      const res = await signIn("credentials", {
-        ...values,
-        callbackUrl: "/dashboard",
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
         redirect: false,
+        callbackUrl: "/dashboard",
       });
 
-      if (res?.ok) {
+      console.log("SignIn result:", result);
+
+      if (result?.error) {
+        toast.error(result.error);
+      } else if (result?.url) {
         toast.success("Login successful!");
+        router.push(result.url);
       } else {
-        toast.error("Invalid credentials");
+        toast.error("Something went wrong");
       }
-    } catch {
+    } catch (error) {
       toast.error("Something went wrong");
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,6 +73,7 @@ export default function LoginForm() {
                       type="email"
                       placeholder="you@example.com"
                       {...field}
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage />
@@ -78,6 +93,7 @@ export default function LoginForm() {
                       type="password"
                       placeholder="Enter password"
                       {...field}
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage />
@@ -85,8 +101,8 @@ export default function LoginForm() {
               )}
             />
 
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing In..." : "Sign In"}
             </Button>
           </form>
         </Form>
@@ -102,6 +118,7 @@ export default function LoginForm() {
           <Button
             variant="outline"
             onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+            disabled={isLoading}
           >
             <Image
               src="https://img.icons8.com/color/24/google-logo.png"
@@ -115,8 +132,8 @@ export default function LoginForm() {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          Don’t have an account? Sorry only the owner can login. You can&apos;t
-          access this unless you are the owner.
+          Don&apos;t have an account? Sorry only the owner can login. You
+          can&apos;t access this unless you are the owner.
         </p>
       </div>
     </div>

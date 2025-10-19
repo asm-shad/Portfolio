@@ -4,7 +4,7 @@ import { Mail, MapPin, Send } from "lucide-react";
 
 async function getSuperAdmin() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/user`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/user`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;

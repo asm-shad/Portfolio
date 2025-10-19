@@ -17,7 +17,7 @@ function toDateLabel(s?: string | null) {
 
 async function getBlog(slug: string) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE}/post/slug/${slug}`,
+    `${process.env.NEXT_PUBLIC_BASE_API}/post/slug/${slug}`,
     {
       next: { revalidate: 30 },
     }
@@ -43,7 +43,7 @@ export async function generateMetadata({
   const { slug } = params;
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE}/post/slug/${slug}`,
+    `${process.env.NEXT_PUBLIC_BASE_API}/post/slug/${slug}`,
     { next: { revalidate: 30 } }
   );
 

@@ -1,14 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* app/dashboard/page.tsx */
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUserSession } from "@/helpers/getUserSession";
+import { cookies } from "next/headers";
 
 async function getStats() {
-  const base = process.env.NEXT_PUBLIC_API_BASE!;
-  const res = await fetch(`${base}/stats`, { next: { revalidate: 300 } });
-  if (!res.ok) return null;
+  // ✅ cookies() is synchronous
+  const cookieStore = await cookies();
+
+  // ✅ Properly serialize cookies for backend
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+
+  const base = process.env.NEXT_PUBLIC_BASE_API ?? "http://localhost:5000/api";
+
+  const res = await fetch(`${base}/stats`, {
+    headers: {
+      Cookie: cookieHeader,
+      "Content-Type": "application/json",
+    },
+    next: { revalidate: 30 },
+  });
+
+  if (!res.ok) {
+    console.error("Failed to fetch stats:", res.status, res.statusText);
+    return null;
+  }
+
   const json = await res.json();
   return json?.data ?? null;
 }
@@ -27,9 +48,22 @@ function fmtDate(s?: string) {
 
 export default async function DashboardPage() {
   const session = await getUserSession();
-  console.log(session);
+  console.log("Session:", session);
 
-  const data = await getStats();
+  if (!session) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold">Content Dashboard</h1>
+          <p className="text-muted-foreground">
+            Please log in to view dashboard data
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const data = await getStats(); // Removed the session parameter
 
   const totals = data?.totals ?? { posts: 0, projects: 0 };
   const mostViewedTop = data?.mostViewed?.top ?? null;
@@ -50,7 +84,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Stat cards */}
+      {/* Rest of your component remains the same */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader>

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 async function getBlogs(page: number) {
-  const base = process.env.NEXT_PUBLIC_API_BASE!;
+  const base = process.env.NEXT_PUBLIC_BASE_API!;
   const url = `${base}/post?page=${page}&limit=${PAGE_SIZE}&isPublished=true`;
   const res = await fetch(url, { next: { revalidate: 30 } });
   if (!res.ok) return null;

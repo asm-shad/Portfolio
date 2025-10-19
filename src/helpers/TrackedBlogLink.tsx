@@ -18,7 +18,7 @@ export default function TrackedBlogLink({
 }: Props) {
   const handleClick = () => {
     // fire-and-forget; don’t block navigation
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/post/${postId}/views`, {
+    fetch(`${process.env.NEXT_PUBLIC_BASE_API}/post/${postId}/views`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "include", // keep if your API expects cookies; else remove
