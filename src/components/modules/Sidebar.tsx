@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FilePlus, Code2, User } from "lucide-react";
+import { LayoutDashboard, FilePlus, Code2, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { signOut, useSession } from "next-auth/react";
 
 const links = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -14,9 +16,11 @@ const links = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { status } = useSession();
 
   return (
-    <aside className="w-64 border-r bg-card p-4 space-y-4 hidden md:block">
+    <aside className="hidden md:flex h-screen w-64 flex-col border-r bg-card p-4">
+      {/* ---------- Top section ---------- */}
       <div className="px-2">
         <h1 className="text-lg font-bold">Portfolio Admin</h1>
         <p className="text-xs text-muted-foreground">
@@ -24,7 +28,8 @@ export function Sidebar() {
         </p>
       </div>
 
-      <nav className="mt-6 space-y-1">
+      {/* ---------- Navigation links ---------- */}
+      <nav className="mt-6 flex-1 space-y-1">
         {links.map((link) => {
           const Icon = link.icon;
           const isActive = pathname === link.href;
@@ -43,6 +48,20 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* ---------- Bottom Logout Button ---------- */}
+      {status === "authenticated" && (
+        <div className="border-t pt-4 mt-2">
+          <Button
+            variant="destructive"
+            className="w-full justify-start gap-2"
+            onClick={() => signOut({ callbackUrl: "/" })}
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
+        </div>
+      )}
     </aside>
   );
 }

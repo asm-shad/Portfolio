@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/helpers/authOptions";
+import { getUserSession } from "@/helpers/getUserSession";
 
 async function getStats() {
   const base = process.env.NEXT_PUBLIC_API_BASE!;
@@ -27,7 +26,7 @@ function fmtDate(s?: string) {
 }
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getUserSession();
   console.log(session);
 
   const data = await getStats();
