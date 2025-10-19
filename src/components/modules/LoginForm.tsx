@@ -115,7 +115,7 @@ export default function LoginForm() {
 
         <p className="text-center text-sm text-muted-foreground mt-4">
           Don’t have an account? Sorry only the owner can login. You can&apos;t
-          access this.
+          access this unless you are the owner.
         </p>
       </div>
     </div>

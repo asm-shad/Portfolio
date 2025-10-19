@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import MotherPagination from "@/components/MotherPagination";
 
-export const revalidate = 300; // ISR enabled (revalidates every 5 minutes)
+export const revalidate = 300; // ISR: revalidate the page HTML every 5 minutes
 const PAGE_SIZE = 9;
 
 async function getProjects(page: number) {
   const base = process.env.NEXT_PUBLIC_API_BASE!;
   const url = `${base}/project?page=${page}&limit=${PAGE_SIZE}`;
-  const res = await fetch(url, { next: { revalidate: 30 } }); // ISR fetch
+  const res = await fetch(url, { next: { revalidate: 30 } }); // ISR fetch for data
   if (!res.ok) return null;
   return res.json();
 }
@@ -37,6 +38,53 @@ function normalize(data: any) {
   return { items, total };
 }
 
+/** ---------- Dynamic metadata for All Projects (updates per page) ---------- */
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: { page?: string };
+}): Promise<Metadata> {
+  const page = Math.max(1, Number(searchParams?.page ?? "1"));
+  const base = process.env.NEXT_PUBLIC_API_BASE!;
+  const url = `${base}/project?page=${page}&limit=1`; // fetch 1 item just for meta
+  let firstThumb: string | undefined;
+
+  try {
+    const res = await fetch(url, { next: { revalidate: 30 } });
+    if (res.ok) {
+      const json = await res.json();
+      const { items } = normalize(json);
+      const first = items?.[0];
+      if (first?.thumbnail && typeof first.thumbnail === "string") {
+        firstThumb = first.thumbnail;
+      }
+    }
+  } catch {
+    // ignore; we'll just use text metadata
+  }
+
+  const title = page > 1 ? `All Projects — Page ${page}` : "All Projects";
+  const description =
+    "Explore my personal projects — from experiments to production-ready apps.";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: firstThumb ? [{ url: firstThumb }] : undefined,
+    },
+    twitter: {
+      card: firstThumb ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: firstThumb ? [firstThumb] : undefined,
+    },
+  };
+}
+
+/** ------------------------------- Page UI ------------------------------- */
 export default async function AllProjects({
   searchParams,
 }: {
