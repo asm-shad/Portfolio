@@ -134,6 +134,13 @@ npm run dev
 
 ## 🔐 Authentication Flow
 
+```bash
+1️⃣ The admin logs in via email/password or Google OAuth.
+2️⃣ Backend validates credentials using bcrypt.compare.
+3️⃣ JWT is issued and stored client-side via cookies/session.
+4️⃣ Authenticated requests include JWT for dashboard actions.
+```
+
 ## 🧠 Bonus Implementations
 
 ```bash
