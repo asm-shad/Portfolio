@@ -83,35 +83,42 @@ cd b5a7-portfolio
 
 npm install
 
-# or
+or
 
 yarn install
 
-# 3️⃣ Setup environment variables
+## 3️⃣ Setup environment variables
 
-# Create a .env file in both frontend and backend folders:
+### Create a .env file in both frontend and backend folders:
 
-# .env (Frontend)
+```bash
+### .env (Frontend)
 
 NEXT_PUBLIC_API_BASE=http://localhost:5000/api
 NEXTAUTH_SECRET=your_secret_key
 NEXTAUTH_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
 
+```bash
 # .env (Backend)
 
 DATABASE_URL="postgresql://user:password@localhost:5432/portfolio"
 JWT_SECRET=your_jwt_secret
 PORT=5000
+```
 
-# 4️⃣ Setup Prisma
+### 4️⃣ Setup Prisma
 
+```bash
 npx prisma migrate dev --name init
 npx prisma db seed
+```
 
-# 5️⃣ Run both servers
+### 5️⃣ Run both servers
 
+```bash
 # Backend
 
 npm run dev
@@ -123,20 +130,18 @@ npm run dev
 npm run dev
 
 # http://localhost:3000
+```
 
 ## 🔐 Authentication Flow
 
-🔐 Authentication Flow
-
 ## 🧠 Bonus Implementations
 
+```bash
 ✅ Rich Text Editor using React Quill for blogs.
 ✅ Dynamic About Panel (SSG + randomized covers).
 ✅ Lazy Image Loading and Smooth Transitions.
 ✅ Strict Error Handling & Form Validation.
 ✅ Toast notifications (Sonner).
 ✅ Responsive Dashboard with shadcn/ui.
-
-```
 
 ```
