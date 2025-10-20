@@ -1,3 +1,4 @@
+// app/dashboard/page.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
 import Link from "next/link";

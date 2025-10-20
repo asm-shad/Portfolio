@@ -3,15 +3,18 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { BlogTable } from "@/components/modules/BlogTable";
+import MotherPagination from "@/components/MotherPagination";
 
 export const metadata: Metadata = {
   title: "Manage Blogs",
   description: "Manage your blog posts",
 };
 
-async function getBlogs() {
+const PAGE_SIZE = 10;
+
+async function getBlogs(page: number = 1) {
   const base = process.env.NEXT_PUBLIC_BASE_API!;
-  const url = `${base}/post`;
+  const url = `${base}/post?page=${page}&limit=${PAGE_SIZE}`;
 
   try {
     const res = await fetch(url, {
@@ -27,25 +30,50 @@ async function getBlogs() {
 
     const data = await res.json();
 
-    // Handle the nested response structure: data.data.data
-    if (data.success && data.data && Array.isArray(data.data.data)) {
-      return data.data.data; // Extract the actual blog array
+    // Handle the nested response structure: data.data
+    if (data.success && data.data) {
+      return {
+        blogs: Array.isArray(data.data.data) ? data.data.data : [],
+        total: data.data.total || 0,
+        page: data.data.page || 1,
+        limit: data.data.limit || PAGE_SIZE,
+      };
     } else if (Array.isArray(data)) {
-      return data; // Direct array response
-    } else if (data.data && Array.isArray(data.data)) {
-      return data.data; // Nested data array
+      return {
+        blogs: data,
+        total: data.length,
+        page: 1,
+        limit: PAGE_SIZE,
+      };
     } else {
       console.warn("Unexpected API response structure:", data);
-      return []; // Return empty array as fallback
+      return {
+        blogs: [],
+        total: 0,
+        page: 1,
+        limit: PAGE_SIZE,
+      };
     }
   } catch (error) {
     console.error("Error fetching blogs:", error);
-    return []; // Return empty array on error
+    return {
+      blogs: [],
+      total: 0,
+      page: 1,
+      limit: PAGE_SIZE,
+    };
   }
 }
 
-export default async function BlogManagementPage() {
-  const blogs = await getBlogs();
+export default async function BlogManagementPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const currentPage = Math.max(1, Number(searchParams.page || "1"));
+  const { blogs, total } = await getBlogs(currentPage);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
@@ -55,12 +83,18 @@ export default async function BlogManagementPage() {
           <h1 className="text-3xl font-bold tracking-tight">Blog Management</h1>
           <p className="text-muted-foreground">
             Manage your blog posts, publish, unpublish, edit or delete them.
+            {total > 0 && (
+              <span className="block text-sm mt-1">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1} to{" "}
+                {Math.min(currentPage * PAGE_SIZE, total)} of {total} posts
+              </span>
+            )}
           </p>
         </div>
 
         <Button asChild>
           <Link
-            href="/dashboard/blogs/create"
+            href="/dashboard/create-blog"
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
@@ -71,6 +105,11 @@ export default async function BlogManagementPage() {
 
       {/* Blog Table */}
       <BlogTable initialBlogs={blogs} />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <MotherPagination totalPages={totalPages} queryKey="page" />
+      )}
     </div>
   );
 }

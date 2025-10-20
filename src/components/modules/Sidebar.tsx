@@ -18,6 +18,11 @@ import { signOut, useSession } from "next-auth/react";
 const links = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/blogs", label: "Manage Blogs", icon: UnfoldHorizontal },
+  {
+    href: "/dashboard/projects",
+    label: "Manage Projects",
+    icon: UnfoldHorizontal,
+  },
   { href: "/dashboard/create-blog", label: "Create Post", icon: FilePlus },
   { href: "/dashboard/create-project", label: "Create Project", icon: Code2 },
   { href: "/dashboard/edit-profile", label: "Edit Profile", icon: User },
