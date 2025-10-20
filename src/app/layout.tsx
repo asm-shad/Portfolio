@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={geistMono.className}>
+      <body className={geistSans.className}>
         <AuthProvider>
           <Toaster richColors position="top-center" />
           {children}

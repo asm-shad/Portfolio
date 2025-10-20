@@ -36,7 +36,7 @@ const COVERS = [
 
 // ✅ Build-time (SSG) fetch helper
 export async function getOwnerSSG() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/user`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/user`, {
     cache: "force-cache",
   });
   if (!res.ok) return null;

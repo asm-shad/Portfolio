@@ -9,7 +9,7 @@ export const revalidate = 300; // ISR: revalidate the page HTML every 5 minutes
 const PAGE_SIZE = 9;
 
 async function getProjects(page: number) {
-  const base = process.env.NEXT_PUBLIC_API_BASE!;
+  const base = process.env.NEXT_PUBLIC_BASE_API!;
   const url = `${base}/project?page=${page}&limit=${PAGE_SIZE}`;
   const res = await fetch(url, { next: { revalidate: 30 } }); // ISR fetch for data
   if (!res.ok) return null;
@@ -45,7 +45,7 @@ export async function generateMetadata({
   searchParams?: { page?: string };
 }): Promise<Metadata> {
   const page = Math.max(1, Number(searchParams?.page ?? "1"));
-  const base = process.env.NEXT_PUBLIC_API_BASE!;
+  const base = process.env.NEXT_PUBLIC_BASE_API!;
   const url = `${base}/project?page=${page}&limit=1`; // fetch 1 item just for meta
   let firstThumb: string | undefined;
 

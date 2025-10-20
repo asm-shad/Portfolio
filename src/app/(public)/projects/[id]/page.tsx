@@ -40,6 +40,16 @@ async function getProject(id: string) {
   return res.json();
 }
 
+// HTML Content Component (Server Component)
+function HtmlContent({ content }: { content: string }) {
+  return (
+    <div
+      className="prose prose-sm md:prose-base max-w-none dark:prose-invert"
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+}
+
 export default async function ProjectDetails({
   params,
 }: {
@@ -218,8 +228,8 @@ export default async function ProjectDetails({
           <div className="text-xs font-semibold text-muted-foreground tracking-wide uppercase mb-2">
             Overview
           </div>
-          <article className="prose prose-sm md:prose-base max-w-none dark:prose-invert">
-            <p>{content}</p>
+          <article>
+            <HtmlContent content={content} />
           </article>
         </section>
       ) : null}

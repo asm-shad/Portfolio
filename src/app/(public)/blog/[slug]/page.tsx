@@ -82,6 +82,16 @@ export async function generateMetadata({
   };
 }
 
+// HTML Content Component (Server Component)
+function HtmlContent({ content }: { content: string }) {
+  return (
+    <div
+      className="prose prose-sm md:prose-base max-w-none dark:prose-invert"
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+}
+
 export default async function BlogDetails({
   params,
 }: {
@@ -194,8 +204,8 @@ export default async function BlogDetails({
       )}
 
       {content ? (
-        <article className="prose prose-sm md:prose-base max-w-none dark:prose-invert">
-          <p>{content}</p>
+        <article>
+          <HtmlContent content={content} />
         </article>
       ) : (
         <p className="opacity-60">No content available for this blog.</p>
