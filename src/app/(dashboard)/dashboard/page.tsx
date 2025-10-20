@@ -4,12 +4,11 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUserSession } from "@/helpers/getUserSession";
 import { cookies } from "next/headers";
+import { Suspense } from "react";
 
+// Lazy load the heavy stats fetching
 async function getStats() {
-  // ✅ cookies() is synchronous
   const cookieStore = await cookies();
-
-  // ✅ Properly serialize cookies for backend
   const cookieHeader = cookieStore
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
@@ -46,9 +45,9 @@ function fmtDate(s?: string) {
       });
 }
 
-export default async function DashboardPage() {
+// Lazy loaded dashboard content
+async function DashboardContent() {
   const session = await getUserSession();
-  console.log("Session:", session);
 
   if (!session) {
     return (
@@ -63,7 +62,7 @@ export default async function DashboardPage() {
     );
   }
 
-  const data = await getStats(); // Removed the session parameter
+  const data = await getStats();
 
   const totals = data?.totals ?? { posts: 0, projects: 0 };
   const mostViewedTop = data?.mostViewed?.top ?? null;
@@ -84,7 +83,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Rest of your component remains the same */}
+      {/* Stats Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader>
@@ -117,6 +116,7 @@ export default async function DashboardPage() {
                       fill
                       sizes="64px"
                       className="object-cover"
+                      loading="lazy"
                     />
                   ) : null}
                 </div>
@@ -199,6 +199,7 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
+      {/* Recent Projects */}
       <div className="grid lg:grid-cols-1 gap-4">
         <Card>
           <CardHeader>
@@ -224,5 +225,49 @@ export default async function DashboardPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+// Main dashboard page with loading state
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-8 animate-pulse">
+          {/* Header loading */}
+          <div className="space-y-2">
+            <div className="h-8 bg-muted rounded w-1/4"></div>
+            <div className="h-4 bg-muted rounded w-1/2"></div>
+          </div>
+
+          {/* Stats cards loading */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="border rounded-lg p-6 space-y-3">
+                <div className="h-5 bg-muted rounded w-1/2"></div>
+                <div className="h-8 bg-muted rounded w-1/4"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tables loading */}
+          <div className="grid lg:grid-cols-2 gap-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="border rounded-lg p-6 space-y-4">
+                <div className="h-6 bg-muted rounded w-1/3"></div>
+                {[...Array(5)].map((_, j) => (
+                  <div key={j} className="flex justify-between items-center">
+                    <div className="h-4 bg-muted rounded w-2/3"></div>
+                    <div className="h-3 bg-muted rounded w-1/4"></div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }

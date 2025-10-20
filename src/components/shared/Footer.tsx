@@ -48,7 +48,7 @@ export default async function Footer() {
     <footer className="bg-background border-t py-10 relative">
       <div className="px-4 flex flex-col items-center gap-10 container mx-auto">
         {/* --- Year and back-to-top --- */}
-        <div className="flex justify-between w-full text-sm text-muted-foreground">
+        {/* <div className="flex justify-between w-full text-sm text-muted-foreground">
           <span>
             © {year} {name}
           </span>
@@ -61,7 +61,7 @@ export default async function Footer() {
               <ArrowUp className="h-4 w-4" />
             </span>
           </a>
-        </div>
+        </div> */}
 
         {/* --- Center Text --- */}
         <div className="space-y-6 text-center">
@@ -143,44 +143,50 @@ export default async function Footer() {
 
           {/* Contact Info */}
           {(email || phone) && (
-            <div className="text-sm text-muted-foreground space-y-1">
+            <div className="text-xs text-muted-foreground flex flex-wrap justify-center gap-3">
               {email && (
-                <div>
-                  <strong>Email:</strong> {email}
-                </div>
+                <span>
+                  <strong>E:</strong> {email}
+                </span>
               )}
               {phone && (
-                <div>
-                  <strong>Phone:</strong> {phone}
-                </div>
+                <span>
+                  <strong>P:</strong> {phone}
+                </span>
               )}
             </div>
           )}
         </div>
 
         {/* --- Bottom credits --- */}
-        <div className="text-xs text-muted-foreground mt-4 space-x-1 text-center">
+        <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 text-xs text-muted-foreground">
+          {/* Copyright */}
           <span>
-            Design by{" "}
-            <a
-              href="https://avgy.design"
-              target="_blank"
-              className="underline hover:text-primary"
-            >
-              ASM Shad
-            </a>
+            © {year} {name}
           </span>
-          <span>•</span>
-          <span>
-            Development by{" "}
-            <a
+
+          {/* Credits - Compact */}
+          <div className="flex items-center gap-1">
+            <span>Developed and Designed by</span>
+            <Link
               href={githubUrl}
               target="_blank"
               className="underline hover:text-primary"
             >
               {name}
-            </a>
-          </span>
+            </Link>
+          </div>
+
+          {/* Back to Top - Smaller */}
+          <a
+            href="#top"
+            className="flex items-center gap-1 hover:text-primary transition group"
+          >
+            <span className="hidden sm:inline text-xs">BACK TO TOP</span>
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-background text-xs group-hover:scale-110 transition">
+              <ArrowUp className="h-3 w-3" />
+            </span>
+          </a>
         </div>
       </div>
     </footer>

@@ -167,9 +167,9 @@ export default function EditProfileForm() {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto bg-white shadow-lg border border-slate-200">
+    <Card className="max-w-2xl mx-auto shadow-lg border border-slate-200">
       <CardHeader>
-        <h2 className="text-2xl font-semibold text-slate-800">Edit Profile</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Edit Profile</h2>
         <p className="text-sm text-muted-foreground">
           Update your personal information and social links
         </p>

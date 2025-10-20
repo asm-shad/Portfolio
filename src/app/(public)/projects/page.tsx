@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import MotherPagination from "@/components/MotherPagination";
 
 export const revalidate = 300; // ISR: revalidate the page HTML every 5 minutes
@@ -44,7 +44,8 @@ export async function generateMetadata({
 }: {
   searchParams?: { page?: string };
 }): Promise<Metadata> {
-  const page = Math.max(1, Number(searchParams?.page ?? "1"));
+  const resolvedSearchParams = await searchParams;
+  const page = Math.max(1, Number(resolvedSearchParams?.page ?? "1"));
   const base = process.env.NEXT_PUBLIC_BASE_API!;
   const url = `${base}/project?page=${page}&limit=1`; // fetch 1 item just for meta
   let firstThumb: string | undefined;
@@ -90,7 +91,8 @@ export default async function AllProjects({
 }: {
   searchParams?: { page?: string };
 }) {
-  const page = Math.max(1, Number(searchParams?.page ?? "1"));
+  const resolvedSearchParams = await searchParams;
+  const page = Math.max(1, Number(resolvedSearchParams?.page ?? "1"));
   const raw = await getProjects(page);
   const { items, total } = raw ? normalize(raw) : { items: [], total: 0 };
 
@@ -178,30 +180,30 @@ export default async function AllProjects({
                     )}
 
                   {/* Links */}
-                  <div className="flex gap-2 pt-3">
+                  {/* <div className="flex gap-2 pt-3">
                     {p.liveUrl && (
-                      <Link
-                        href={p.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="outline" size="sm">
+                      <Button asChild variant="outline" size="sm">
+                        <Link
+                          href={p.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           Live
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     )}
                     {p.githubUrl && (
-                      <Link
-                        href={p.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="ghost" size="sm">
+                      <Button asChild variant="ghost" size="sm">
+                        <Link
+                          href={p.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           GitHub
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     )}
-                  </div>
+                  </div> */}
                 </div>
               </Link>
             );

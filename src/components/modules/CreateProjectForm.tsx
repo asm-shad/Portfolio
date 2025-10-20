@@ -120,9 +120,9 @@ export default function CreateProjectForm() {
   };
 
   return (
-    <Card className="max-w-4xl mx-auto bg-white shadow-lg border border-slate-200">
+    <Card className="max-w-4xl mx-auto shadow-lg border border-slate-200">
       <CardHeader>
-        <h2 className="text-2xl font-semibold text-slate-800">
+        <h2 className="text-2xl font-semibold text-foreground">
           Create New Project
         </h2>
       </CardHeader>

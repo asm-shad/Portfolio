@@ -67,9 +67,9 @@ export default function CreatePostForm() {
   };
 
   return (
-    <Card className="max-w-6xl mx-auto bg-white shadow-lg border border-slate-200">
+    <Card className="max-w-6xl mx-auto shadow-lg border-slate-200">
       <CardHeader>
-        <h2 className="text-2xl font-semibold text-slate-800">
+        <h2 className="text-2xl font-semibold text-foreground">
           Create New Post
         </h2>
       </CardHeader>
