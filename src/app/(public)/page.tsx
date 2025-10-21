@@ -50,26 +50,6 @@ const ProjectsPanel = dynamic(
   }
 );
 
-// Lazy load SidebarProfile (if it's heavy)
-const LazySidebarProfile = dynamic(
-  () => import("@/components/modules/SidebarProfile"),
-  {
-    loading: () => (
-      <div className="rounded-2xl border bg-card/60 p-6 animate-pulse">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-12 w-12 bg-muted rounded-full"></div>
-          <div className="space-y-2">
-            <div className="h-4 bg-muted rounded w-20"></div>
-            <div className="h-3 bg-muted rounded w-16"></div>
-          </div>
-        </div>
-        <div className="h-4 bg-muted rounded w-full mb-2"></div>
-        <div className="h-4 bg-muted rounded w-2/3"></div>
-      </div>
-    ),
-  }
-);
-
 // Component for the main content area
 function TabContent({ tab, page }: { tab: string; page: number }) {
   return (
@@ -81,14 +61,14 @@ function TabContent({ tab, page }: { tab: string; page: number }) {
   );
 }
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams?: { tab?: string; page?: string };
-}) {
-  const sp = await searchParams;
-  const tab = sp?.tab ?? "projects";
-  const page = Number(sp?.page ?? "1");
+interface HomeProps {
+  searchParams: Promise<{ tab?: string; page?: string }>;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
+  const tab = params?.tab ?? "projects";
+  const page = Number(params?.page ?? "1");
 
   return (
     <main className="container mx-auto px-4 py-6">

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
@@ -16,6 +17,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { setAuthCookies } from "@/helpers/authCookies";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +31,38 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
+      // First, call your backend directly to get tokens
+      const backendResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_API}/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: values.email,
+            password: values.password,
+          }),
+        }
+      );
+
+      const backendData = await backendResponse.json();
+      console.log("Backend login response:", backendData);
+
+      if (!backendResponse.ok || !backendData.success) {
+        throw new Error(backendData.message || "Login failed");
+      }
+
+      // Store the tokens in cookies
+      if (backendData.tokens) {
+        setAuthCookies(
+          backendData.tokens.accessToken,
+          backendData.tokens.refreshToken
+        );
+        console.log("✅ Tokens stored in cookies");
+      }
+
+      // Now sign in with NextAuth to create session
       const result = await signIn("credentials", {
         email: values.email,
         password: values.password,
@@ -36,7 +70,7 @@ export default function LoginForm() {
         callbackUrl: "/dashboard",
       });
 
-      console.log("SignIn result:", result);
+      console.log("NextAuth signIn result:", result);
 
       if (result?.error) {
         toast.error(result.error);
@@ -46,8 +80,8 @@ export default function LoginForm() {
       } else {
         toast.error("Something went wrong");
       }
-    } catch (error) {
-      toast.error("Something went wrong");
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong");
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);

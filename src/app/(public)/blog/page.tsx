@@ -52,13 +52,13 @@ function toDateLabel(s?: string | null) {
   });
 }
 
-export default async function AllBlogs({
-  searchParams,
-}: {
-  searchParams?: { page?: string };
-}) {
-  const sp = await searchParams;
-  const page = Math.max(1, Number(sp?.page ?? "1"));
+interface AllBlogsProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function AllBlogs({ searchParams }: AllBlogsProps) {
+  const params = await searchParams;
+  const page = Math.max(1, Number(params?.page ?? "1"));
 
   const raw = await getBlogs(page);
   const { items, total } = raw ? normalize(raw) : { items: [], total: 0 };

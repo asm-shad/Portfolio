@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -54,14 +54,12 @@ export default function EditBlogPage() {
     }
   }, [status, router]);
 
-  // Fetch blog data
-  useEffect(() => {
-    if (status === "authenticated" && session) {
-      fetchBlog();
+  // Fetch blog data with useCallback to avoid infinite re-renders
+  const fetchBlog = useCallback(async () => {
+    if (status !== "authenticated" || !session) {
+      return;
     }
-  }, [session, status, blogId]);
 
-  const fetchBlog = async () => {
     try {
       const base = process.env.NEXT_PUBLIC_BASE_API!;
       const url = `${base}/post/${blogId}`;
@@ -98,7 +96,14 @@ export default function EditBlogPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [blogId, session, status, router]);
+
+  // Fetch blog when component mounts or dependencies change
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchBlog();
+    }
+  }, [fetchBlog, status]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

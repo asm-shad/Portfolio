@@ -87,13 +87,15 @@ async function getProjects(page: number = 1) {
   }
 }
 
+interface ProjectsManagementPageProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
 export default async function ProjectsManagementPage({
   searchParams,
-}: {
-  searchParams: { page?: string };
-}) {
-  const sp = await searchParams;
-  const currentPage = Math.max(1, Number(sp.page || "1"));
+}: ProjectsManagementPageProps) {
+  const params = await searchParams;
+  const currentPage = Math.max(1, Number(params.page || "1"));
   const { projects, total } = await getProjects(currentPage);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -124,7 +126,7 @@ export default async function ProjectsManagementPage({
 
         <Button asChild>
           <Link
-            href="/dashboard/create-project"
+            href="/dashboard/projects/create"
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />

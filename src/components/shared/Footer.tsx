@@ -1,33 +1,52 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import { ArrowUp } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
-async function getOwnerData() {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/user`, {
-      next: { revalidate: 30 }, // Cache for 1 hour
-    });
-
-    if (!res.ok) return null;
-
-    const users = await res.json();
-    // Find the owner (ADMIN or SUPER_ADMIN)
-    const owner = Array.isArray(users)
-      ? users.find((user: any) => ["ADMIN", "SUPER_ADMIN"].includes(user.role))
-      : null;
-
-    return owner;
-  } catch (error) {
-    console.error("Failed to fetch owner data:", error);
-    return null;
-  }
+interface OwnerData {
+  name: string;
+  email: string;
+  phone: string;
+  github: string;
+  linkedin: string;
+  twitter: string;
+  website: string;
 }
 
-export default async function Footer() {
+export default function Footer() {
+  const [owner, setOwner] = useState<OwnerData | null>(null);
   const year = new Date().getFullYear();
-  const owner = await getOwnerData();
 
-  // Extract social links with fallbacks
+  useEffect(() => {
+    const fetchOwnerData = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_BASE_API;
+        if (!base) {
+          console.warn("NEXT_PUBLIC_BASE_API not available");
+          return;
+        }
+
+        const res = await fetch(`${base}/user`);
+        if (res.ok) {
+          const users = await res.json();
+          const ownerData = Array.isArray(users)
+            ? users.find((user: any) =>
+                ["ADMIN", "SUPER_ADMIN"].includes(user.role)
+              )
+            : null;
+          setOwner(ownerData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch owner data:", error);
+      }
+    };
+
+    fetchOwnerData();
+  }, []);
+
+  // Use owner data or fallback
   const githubUrl = owner?.github || "https://github.com/";
   const linkedinUrl = owner?.linkedin || "https://linkedin.com/";
   const twitterUrl = owner?.twitter || "https://twitter.com/";
@@ -36,34 +55,14 @@ export default async function Footer() {
   const phone = owner?.phone || "";
   const name = owner?.name || "Portfolio Owner";
 
-  // Create WhatsApp link if phone exists
   const whatsappUrl = phone
     ? `https://wa.me/${phone.replace(/\D/g, "")}`
     : null;
-
-  // Create email link
   const emailUrl = email ? `mailto:${email}` : null;
 
   return (
     <footer className="bg-background border-t py-10 relative">
       <div className="px-4 flex flex-col items-center gap-10 container mx-auto">
-        {/* --- Year and back-to-top --- */}
-        {/* <div className="flex justify-between w-full text-sm text-muted-foreground">
-          <span>
-            © {year} {name}
-          </span>
-          <a
-            href="#top"
-            className="flex items-center gap-1 hover:text-primary transition"
-          >
-            <span className="hidden sm:inline">BACK TO TOP</span>
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-background ml-2">
-              <ArrowUp className="h-4 w-4" />
-            </span>
-          </a>
-        </div> */}
-
-        {/* --- Center Text --- */}
         <div className="space-y-6 text-center">
           <p className="uppercase text-xs tracking-widest text-muted-foreground">
             Have a project in mind?
@@ -73,9 +72,7 @@ export default async function Footer() {
             LET&apos;S TALK
           </h2>
 
-          {/* --- Contact Buttons --- */}
           <div className="flex flex-wrap justify-center gap-3 mt-4">
-            {/* Email */}
             {emailUrl && (
               <Link
                 href={emailUrl}
@@ -85,7 +82,6 @@ export default async function Footer() {
               </Link>
             )}
 
-            {/* WhatsApp */}
             {whatsappUrl && (
               <Link
                 href={whatsappUrl}
@@ -96,7 +92,6 @@ export default async function Footer() {
               </Link>
             )}
 
-            {/* GitHub */}
             {githubUrl && (
               <Link
                 href={githubUrl}
@@ -107,7 +102,6 @@ export default async function Footer() {
               </Link>
             )}
 
-            {/* LinkedIn */}
             {linkedinUrl && (
               <Link
                 href={linkedinUrl}
@@ -118,7 +112,6 @@ export default async function Footer() {
               </Link>
             )}
 
-            {/* Twitter */}
             {twitterUrl && (
               <Link
                 href={twitterUrl}
@@ -129,7 +122,6 @@ export default async function Footer() {
               </Link>
             )}
 
-            {/* Website */}
             {websiteUrl && websiteUrl !== "#" && (
               <Link
                 href={websiteUrl}
@@ -141,7 +133,6 @@ export default async function Footer() {
             )}
           </div>
 
-          {/* Contact Info */}
           {(email || phone) && (
             <div className="text-xs text-muted-foreground flex flex-wrap justify-center gap-3">
               {email && (
@@ -158,14 +149,11 @@ export default async function Footer() {
           )}
         </div>
 
-        {/* --- Bottom credits --- */}
         <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 text-xs text-muted-foreground">
-          {/* Copyright */}
           <span>
             © {year} {name}
           </span>
 
-          {/* Credits - Compact */}
           <div className="flex items-center gap-1">
             <span>Developed and Designed by</span>
             <Link
@@ -177,7 +165,6 @@ export default async function Footer() {
             </Link>
           </div>
 
-          {/* Back to Top - Smaller */}
           <a
             href="#top"
             className="flex items-center gap-1 hover:text-primary transition group"

@@ -94,9 +94,9 @@ yarn install
 ```bash
 ### .env (Frontend)
 
-NEXT_PUBLIC_API_BASE=http://localhost:5000/api
+NEXT_PUBLIC_BASE_API=https://portfolio-server-two-indol.vercel.app/api
 NEXTAUTH_SECRET=your_secret_key
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=https://asmshadportfolio.vercel.app
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```

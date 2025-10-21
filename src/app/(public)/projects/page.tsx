@@ -42,10 +42,10 @@ function normalize(data: any) {
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams?: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
-  const resolvedSearchParams = await searchParams;
-  const page = Math.max(1, Number(resolvedSearchParams?.page ?? "1"));
+  const params = await searchParams;
+  const page = Math.max(1, Number(params?.page ?? "1"));
   const base = process.env.NEXT_PUBLIC_BASE_API!;
   const url = `${base}/project?page=${page}&limit=1`; // fetch 1 item just for meta
   let firstThumb: string | undefined;
@@ -86,13 +86,13 @@ export async function generateMetadata({
 }
 
 /** ------------------------------- Page UI ------------------------------- */
-export default async function AllProjects({
-  searchParams,
-}: {
-  searchParams?: { page?: string };
-}) {
-  const resolvedSearchParams = await searchParams;
-  const page = Math.max(1, Number(resolvedSearchParams?.page ?? "1"));
+interface AllProjectsProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function AllProjects({ searchParams }: AllProjectsProps) {
+  const params = await searchParams;
+  const page = Math.max(1, Number(params?.page ?? "1"));
   const raw = await getProjects(page);
   const { items, total } = raw ? normalize(raw) : { items: [], total: 0 };
 

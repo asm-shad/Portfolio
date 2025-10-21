@@ -128,6 +128,12 @@ export default function EditProfileForm() {
         ...form,
       };
 
+      console.log("🔄 Updating profile with payload:", payload);
+      console.log(
+        "🔗 API URL:",
+        `${process.env.NEXT_PUBLIC_BASE_API}/user/${session.user.id}`
+      );
+
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_BASE_API}/user/${session.user.id}`,
         payload,
@@ -135,6 +141,8 @@ export default function EditProfileForm() {
           withCredentials: true,
         }
       );
+
+      console.log("✅ Update response:", response);
 
       // Update the session with new user data
       await update({
@@ -150,7 +158,18 @@ export default function EditProfileForm() {
       toast.success("Profile updated successfully!");
       router.push("/dashboard");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to update profile");
+      console.error("❌ Update error:", err);
+
+      if (err.code === "ERR_NETWORK") {
+        toast.error(
+          "Cannot connect to server. Please check if backend is running."
+        );
+      } else if (err.response?.status === 401) {
+        toast.error("Please login again");
+        router.push("/login");
+      } else {
+        toast.error(err.response?.data?.message || "Failed to update profile");
+      }
     } finally {
       setLoading(false);
     }
@@ -223,7 +242,7 @@ export default function EditProfileForm() {
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="+880 1234567899"
                   className="mt-2"
                 />
               </div>

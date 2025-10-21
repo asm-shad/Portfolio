@@ -1,4 +1,3 @@
-// components/modules/ProjectsTable.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -42,29 +41,6 @@ import {
   Code,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-interface Project {
-  id: number;
-  title: string;
-  description: string;
-  thumbnail: string | null;
-  technologies: string[];
-  githubUrl: string | null;
-  liveUrl: string | null;
-  featured: boolean;
-  status: string;
-  startDate: string | null;
-  endDate: string | null;
-  createdAt: string;
-  updatedAt: string;
-  author: {
-    id: number;
-    name: string;
-    picture: string | null;
-    title: string | null;
-  };
-}
 
 interface ProjectsTableProps {
   initialProjects: any[];
@@ -82,8 +58,6 @@ export function ProjectsTable({ initialProjects }: ProjectsTableProps) {
     projectId: null,
     projectTitle: "",
   });
-
-  const router = useRouter();
 
   useEffect(() => {
     if (Array.isArray(initialProjects)) {
@@ -302,7 +276,7 @@ export function ProjectsTable({ initialProjects }: ProjectsTableProps) {
                         </h3>
                         {project.description && (
                           <p className="text-sm text-muted-foreground line-clamp-2">
-                            {truncateText(project.description, 100)}
+                            {truncateText(project.description, 50)}
                           </p>
                         )}
                       </div>

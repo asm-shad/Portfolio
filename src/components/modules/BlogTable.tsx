@@ -40,27 +40,6 @@ import {
   BarChart3,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-interface Blog {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  isPublished: boolean;
-  isFeatured: boolean;
-  views: number;
-  tags: string[];
-  publishedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-  author: {
-    id: number;
-    name: string;
-    picture: string | null;
-    title: string | null;
-  };
-}
 
 interface BlogTableProps {
   initialBlogs: any[]; // Use any[] for flexibility
@@ -78,8 +57,6 @@ export function BlogTable({ initialBlogs }: BlogTableProps) {
     blogId: null,
     blogTitle: "",
   });
-
-  const router = useRouter();
 
   // Initialize blogs with proper error handling
   useEffect(() => {
@@ -245,13 +222,13 @@ export function BlogTable({ initialBlogs }: BlogTableProps) {
                         target="_blank"
                         className="hover:text-primary hover:underline flex items-center gap-1"
                       >
-                        {truncateText(blog.title, 50)}
+                        {truncateText(blog.title, 30)}
                         <ExternalLink className="h-3 w-3" />
                       </Link>
                     </div>
                     {blog.excerpt && (
                       <p className="text-sm text-muted-foreground">
-                        {truncateText(blog.excerpt, 80)}
+                        {truncateText(blog.excerpt, 50)}
                       </p>
                     )}
                   </div>

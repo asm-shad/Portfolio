@@ -38,7 +38,7 @@ async function getBlog(slug: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
 
@@ -55,10 +55,8 @@ export async function generateMetadata({
   }
 
   const data = await res.json();
-  // ✅ define blog outside, normalize it cleanly
   const blog = data?.data ?? data;
 
-  // ✅ add safe fallbacks
   const title = blog?.title ?? "Blog Post";
   const description =
     blog?.excerpt ??

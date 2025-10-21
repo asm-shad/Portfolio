@@ -65,11 +65,10 @@ async function getBlogs(page: number = 1) {
   }
 }
 
-export default async function BlogManagementPage({
-  searchParams,
-}: {
-  searchParams: { page?: string };
+export default async function BlogManagementPage(props: {
+  searchParams: Promise<{ page?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const currentPage = Math.max(1, Number(searchParams.page || "1"));
   const { blogs, total } = await getBlogs(currentPage);
 
